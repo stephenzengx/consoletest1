@@ -1,12 +1,17 @@
-﻿using System;
+﻿using Confluent.Kafka;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using static ConsoleClientApp.AbsInterface;
 using static ConsoleClientApp.duotai;
-
 
 /*
     using 的三种用法
@@ -65,6 +70,7 @@ namespace ConsoleClientApp
             //{ 
             
             //}
+
             public override void prinf()
             {
                 Console.WriteLine("class1 print方法");
@@ -104,62 +110,250 @@ namespace ConsoleClientApp
             //MyDOtai.Animal ai = new MyDOtai.Animal();
         }
 
-        static void Main(string[] args)
+        // assume we return an int from this long running operation 
+        public static async Task<int> Test() 
         {
-            //1-new 方法的作用
-            /*
-             1- 调用构造方法 创建实例
-             2-在用作修饰符时，new 关键字可以显式隐藏从基类继承的成员。
-             3-用于在泛型声明中约束可能用作类型参数的参数的类型。
-             */
-
-
-            /*contact 为申明类  class1为实例类
-             当调用一个对象的函数时，系统会直接去检查这个对象申明定义的类，即申明类，看所调用的函数是否为虚函数；
-             如果不是虚函数，那么它就直接执行该函数。而如果有virtual关键字，也就是一个虚函数，那么这个时候它就不会立刻执行该函数了，
-             而是转去检查对象的实例类。
-             contact中print方法为虚方法，所以不会执行 而是去执行class1中的print方法
-             */
-            contact ct1 = new class1();
-            ct1.prinf();
-            ct1.print1(); //但是contact 中的print1就没有定义为虚方法 所以就会直接调用 contact print1
-
-            class2 cls2 = new class2();
-            cls2.prinf();
-
-            //虽然 contact中printf 为虚方法，按照上面的理解 按理是说执行class2 中的 print方法
-            //但是！！由于 class2中的printf 用new修饰了 所以等同于class2重新定义了一个printf方法 和父类的printf没有任何联系了
-            //(也就是我们说的隐藏了 父类的方法，准确来说 子类中用new 修饰和父类同名同签名的方法 会破坏多态性
-            contact ct2 = cls2;    
-            ct2.prinf();
-
-
-            //1-泛型T有new约束  class1虽然未定义无参构造函数，但是类默认都有无参构造方法(隐式构造函数)，
-            //如果显示把无参构造方法定义为private，则会报错
-               //泛型参数中的T 不能为抽象类,接口
-            TestNew4<class1> tn4 = new TestNew4<class1>();
-            //2-无泛型约束 T泛型可以放抽象类和接口
-            TestNew3<absAnimal> tn31 = new TestNew3<absAnimal>();
-            TestNew3<IEat> tn32 = new TestNew3<IEat>();
-
-
-            string[] a = new string[4];
-            List<string> a1 = a.ToList();
-            //List<string> a2 = a as List<string>; 无法进行拆箱装箱操作 
-
-            //2-多态：通过继承实现的不同对象调用相同的方法，表现出不同的行为，称之为多态。 virtual 和 Override
-            testDuotai();
-
-            List<int> list1 = new List<int>();
-            list1.Add(1);
-            list1.Add(2);
-
-            foreach (var item in list1)
-            {
-                Console.WriteLine(item);
-            }
-
-            Console.ReadKey();
+            await Task.Delay(3000);
+            Console.WriteLine("console Test");
+            Console.WriteLine("test ThreadId-1：" + Thread.CurrentThread.ManagedThreadId.ToString());
+            return 1;
         }
+
+        static async Task<int> GetStrLengthAsync()
+        {
+            Console.WriteLine("GetStrLengthAsync方法开始执行");
+            //此处返回的<string>中的字符串类型，而不是Task<string>
+            string str = await GetString();
+            Console.WriteLine("GetStrLengthAsync方法执行结束");
+            return str.Length;
+        }
+        static Task<string> GetString()
+        {
+            Console.WriteLine("GetString方法开始执行");
+            return Task.Run(() =>
+            {
+                //Thread.Sleep(2000); 
+                return "GetString的返回值";
+            });
+        }
+
+        #region  test method
+        public static void TaskHistoryDataPush()
+        {
+            while (true)
+            {
+                //WriteLog("TaskHistoryDataPush threadId" + Thread.CurrentThread.ManagedThreadId);
+                //WriteLog("d-p loop start!");
+                //HistoryDataPush();
+                //WriteLog("d-p loop done!");
+
+                Console.WriteLine("TaskHistoryDataPush threadId" + Thread.CurrentThread.ManagedThreadId);
+                Console.WriteLine("d-p loop start!");
+                HistoryDataPush();
+                Console.WriteLine("d-p loop done!");
+
+                Thread.Sleep(3 * 1000);
+            }
+        }
+        public static void HistoryDataPush()
+        {
+            //WriteLog("HistoryDataPush() " + Thread.CurrentThread.ManagedThreadId);
+            Console.WriteLine("HistoryDataPush() " + Thread.CurrentThread.ManagedThreadId);
+            
+            Thread.Sleep(2000);
+            return;
+        }
+
+        public static void TaskHistoryAlarmPush()
+        {
+            while (true)
+            {
+                //WriteLog("TaskHistoryAlarmPush threadId" + Thread.CurrentThread.ManagedThreadId);
+                //WriteLog("a-p loop start!");
+                //HistoryAlarmPush();
+                //WriteLog("a-p loop done!");
+
+                Console.WriteLine("TaskHistoryAlarmPush threadId" + Thread.CurrentThread.ManagedThreadId);
+                Console.WriteLine("a-p loop start!");
+                HistoryAlarmPush();
+                Console.WriteLine("a-p loop done!");
+
+                Thread.Sleep(3 * 1000);
+            }
+        }
+
+        public static void HistoryAlarmPush()
+        {
+            //WriteLog("HistoryAlarmPush() " + Thread.CurrentThread.ManagedThreadId);
+            Console.WriteLine("HistoryAlarmPush() " + Thread.CurrentThread.ManagedThreadId);
+            
+            Thread.Sleep(2000);     
+            return;
+        }
+
+        public static void TaskHistoryAlarmPush1()
+        {
+            while (true)
+            {
+                //WriteLog("TaskHistoryAlarmPush1 threadId" + Thread.CurrentThread.ManagedThreadId);
+                //WriteLog("a-p1 loop start!");
+                //HistoryAlarmPush1();
+                //WriteLog("a-p1 loop done!");
+
+                Console.WriteLine("TaskHistoryAlarmPush1 threadId" + Thread.CurrentThread.ManagedThreadId);
+                Console.WriteLine("a-p1 loop start!");
+                HistoryAlarmPush();
+                Console.WriteLine("a-p1 loop done!");
+
+                Thread.Sleep(3 * 1000);
+            }
+        }
+        public static void HistoryAlarmPush1()
+        {
+            //WriteLog("HistoryAlarmPush1() " + Thread.CurrentThread.ManagedThreadId);
+            
+            Console.WriteLine("HistoryAlarmPush1() " + Thread.CurrentThread.ManagedThreadId);
+            Thread.Sleep(2000);
+
+            return;
+        }
+
+        public static void TaskHistoryAlarmPush2()
+        {
+            while (true)
+            {
+                //WriteLog("TaskHistoryAlarmPush2 threadId" + Thread.CurrentThread.ManagedThreadId);
+                //WriteLog("a-p2 loop start!");
+                //HistoryAlarmPush1();
+                //WriteLog("a-p2 loop done!");
+
+                Console.WriteLine("TaskHistoryAlarmPush2 threadId" + Thread.CurrentThread.ManagedThreadId);
+                Console.WriteLine("a-p2 loop start!");
+                HistoryAlarmPush();
+                Console.WriteLine("a-p2 loop done!");
+
+                Thread.Sleep(3 * 1000);
+            }
+        }
+        public static void HistoryAlarmPush2()
+        {
+            //WriteLog("HistoryAlarmPush2() " + Thread.CurrentThread.ManagedThreadId);
+
+            Console.WriteLine("HistoryAlarmPush2() " + Thread.CurrentThread.ManagedThreadId);
+            Thread.Sleep(2000);
+            return;
+        }
+
+        protected static string BasePath = AppDomain.CurrentDomain.BaseDirectory;
+
+        protected static void HistoryDataPush_Test()
+        {
+            try
+            {
+                throw new ArgumentNullException("in error");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("d-p HistoryDataPush() error:" + e.InnerException == null ? e.Message : e.InnerException.Message );
+                Console.WriteLine("d-p HistoryDataPush() error:" + (e.InnerException == null ? e.Message : e.InnerException.Message));
+            }
+        }
+        #endregion
+
+
+
+        static async Task Main(string[] args)
+        {
+            try
+            {
+                Console.WriteLine("fasfdas");
+                HistoryDataPush_Test();
+
+                Console.ReadLine();
+                return;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("d-p HistoryDataPush() error:" + (e.InnerException == null ? e.Message : e.InnerException.Message));
+            }
+    
+
+        //Task<string> task2 =  Task.Run(() =>
+        //{
+        //    Thread.Sleep(2000);//阻塞当前工作线程
+        //    //Task.Delay(3000);//耗时操作
+        //    Console.WriteLine("task2");
+        //    return "222";
+        //});
+        //string result = task2.Result;
+        //Task.WaitAll(task1, task2); //阻塞线程,等待task1,task2全部完成
+
+        //Console.WriteLine("end");
+        //Console.ReadKey();
+
+        //代码片段2
+        //Console.WriteLine("-------主线程启动-------");
+        //Task<int> task = GetStrLengthAsync();
+        //Console.WriteLine("主线程继续执行");
+        //Console.WriteLine("Task返回的值" + task.Result);
+        //Console.WriteLine("-------主线程结束-------");
+        //代码片段1
+        //Console.WriteLine("main ThreadId-1：" + Thread.CurrentThread.ManagedThreadId.ToString());
+        //int result = await Test();
+        //Console.WriteLine("console main");
+        //Console.WriteLine("main ThreadId-2：" + Thread.CurrentThread.ManagedThreadId.ToString());
+
+
+        //1-new 方法的作用
+        /*
+         1- 调用构造方法 创建实例
+         2-在用作修饰符时，new 关键字可以显式隐藏从基类继承的成员。
+         3-用于在泛型声明中约束可能用作类型参数的参数的类型。
+         */
+
+        /*contact 为申明类  class1为实例类
+         当调用一个对象的函数时，系统会直接去检查这个对象申明定义的类，即申明类，看所调用的函数是否为虚函数；
+         如果不是虚函数，那么它就直接执行该函数。而如果有virtual关键字，也就是一个虚函数，那么这个时候它就不会立刻执行该函数了，
+         而是转去检查对象的实例类。
+         contact中print方法为虚方法，所以不会执行 而是去执行class1中的print方法
+         */
+        //contact ct1 = new class1();
+        //ct1.prinf();
+        //ct1.print1(); //但是contact 中的print1就没有定义为虚方法 所以就会直接调用 contact print1
+        //class2 cls2 = new class2();
+        //cls2.prinf();
+
+        //虽然 contact中printf 为虚方法，按照上面的理解 按理是说执行class2 中的 print方法
+        //但是！！由于 class2中的printf 用new修饰了 所以等同于class2重新定义了一个printf方法 和父类的printf没有任何联系了
+        //(也就是我们说的隐藏了 父类的方法，准确来说 子类中用new 修饰和父类同名同签名的方法 会破坏多态性
+        //contact ct2 = cls2;    
+        //ct2.prinf();
+
+
+        //1-泛型T有new约束  class1虽然未定义无参构造函数，但是类默认都有无参构造方法(隐式构造函数)，
+        //如果显示把无参构造方法定义为private，则会报错
+        //泛型参数中的T 不能为抽象类,接口
+        //TestNew4<class1> tn4 = new TestNew4<class1>();
+        //2-无泛型约束 T泛型可以放抽象类和接口
+        //TestNew3<absAnimal> tn31 = new TestNew3<absAnimal>();
+        //TestNew3<IEat> tn32 = new TestNew3<IEat>();
+
+
+        //string[] a = new string[4];
+        //List<string> a1 = a.ToList();
+        //List<string> a2 = a as List<string>; 无法进行拆箱装箱操作 
+
+        //2-多态：通过继承实现的不同对象调用相同的方法，表现出不同的行为，称之为多态。 virtual 和 Override
+        //testDuotai();
+
+        //List<int> list1 = new List<int>();
+        //list1.Add(1);
+        //list1.Add(2);
+
+        //foreach (var item in list1)
+        //{
+        //    Console.WriteLine(item);
+        //}
+    }
     }
 }

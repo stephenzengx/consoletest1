@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ConsoleClientApp
+﻿namespace ConsoleClientApp
 {
     /*
      学习 C#的static 关键字
@@ -23,5 +17,11 @@ namespace ConsoleClientApp
     */
     class StaticTest
     {
+        string a = string.Empty;
+
+        int b = 6;
+
+
+        int c = 10;
     }
 }
