@@ -109,154 +109,19 @@ namespace ConsoleClientApp
             //using MyDOtai = ConsoleClientApp.duotai; using的用法 对引用的命名空间进行重命名
             //MyDOtai.Animal ai = new MyDOtai.Animal();
         }
-
-        // assume we return an int from this long running operation 
-        public static async Task<int> Test() 
+		
+		public class TestClass
         {
-            await Task.Delay(3000);
-            Console.WriteLine("console Test");
-            Console.WriteLine("test ThreadId-1：" + Thread.CurrentThread.ManagedThreadId.ToString());
-            return 1;
+            public int id { get; set; }
+            public string name { get; set; }
         }
 
-        static async Task<int> GetStrLengthAsync()
+        #region  闭包
+        //闭包
+        public static Func<int, int> Add()
         {
-            Console.WriteLine("GetStrLengthAsync方法开始执行");
-            //此处返回的<string>中的字符串类型，而不是Task<string>
-            string str = await GetString();
-            Console.WriteLine("GetStrLengthAsync方法执行结束");
-            return str.Length;
-        }
-        static Task<string> GetString()
-        {
-            Console.WriteLine("GetString方法开始执行");
-            return Task.Run(() =>
-            {
-                //Thread.Sleep(2000); 
-                return "GetString的返回值";
-            });
-        }
-
-        #region  test method
-        public static void TaskHistoryDataPush()
-        {
-            while (true)
-            {
-                //WriteLog("TaskHistoryDataPush threadId" + Thread.CurrentThread.ManagedThreadId);
-                //WriteLog("d-p loop start!");
-                //HistoryDataPush();
-                //WriteLog("d-p loop done!");
-
-                Console.WriteLine("TaskHistoryDataPush threadId" + Thread.CurrentThread.ManagedThreadId);
-                Console.WriteLine("d-p loop start!");
-                HistoryDataPush();
-                Console.WriteLine("d-p loop done!");
-
-                Thread.Sleep(3 * 1000);
-            }
-        }
-        public static void HistoryDataPush()
-        {
-            //WriteLog("HistoryDataPush() " + Thread.CurrentThread.ManagedThreadId);
-            Console.WriteLine("HistoryDataPush() " + Thread.CurrentThread.ManagedThreadId);
-            
-            Thread.Sleep(2000);
-            return;
-        }
-
-        public static void TaskHistoryAlarmPush()
-        {
-            while (true)
-            {
-                //WriteLog("TaskHistoryAlarmPush threadId" + Thread.CurrentThread.ManagedThreadId);
-                //WriteLog("a-p loop start!");
-                //HistoryAlarmPush();
-                //WriteLog("a-p loop done!");
-
-                Console.WriteLine("TaskHistoryAlarmPush threadId" + Thread.CurrentThread.ManagedThreadId);
-                Console.WriteLine("a-p loop start!");
-                HistoryAlarmPush();
-                Console.WriteLine("a-p loop done!");
-
-                Thread.Sleep(3 * 1000);
-            }
-        }
-
-        public static void HistoryAlarmPush()
-        {
-            //WriteLog("HistoryAlarmPush() " + Thread.CurrentThread.ManagedThreadId);
-            Console.WriteLine("HistoryAlarmPush() " + Thread.CurrentThread.ManagedThreadId);
-            
-            Thread.Sleep(2000);     
-            return;
-        }
-
-        public static void TaskHistoryAlarmPush1()
-        {
-            while (true)
-            {
-                //WriteLog("TaskHistoryAlarmPush1 threadId" + Thread.CurrentThread.ManagedThreadId);
-                //WriteLog("a-p1 loop start!");
-                //HistoryAlarmPush1();
-                //WriteLog("a-p1 loop done!");
-
-                Console.WriteLine("TaskHistoryAlarmPush1 threadId" + Thread.CurrentThread.ManagedThreadId);
-                Console.WriteLine("a-p1 loop start!");
-                HistoryAlarmPush();
-                Console.WriteLine("a-p1 loop done!");
-
-                Thread.Sleep(3 * 1000);
-            }
-        }
-        public static void HistoryAlarmPush1()
-        {
-            //WriteLog("HistoryAlarmPush1() " + Thread.CurrentThread.ManagedThreadId);
-            
-            Console.WriteLine("HistoryAlarmPush1() " + Thread.CurrentThread.ManagedThreadId);
-            Thread.Sleep(2000);
-
-            return;
-        }
-
-        public static void TaskHistoryAlarmPush2()
-        {
-            while (true)
-            {
-                //WriteLog("TaskHistoryAlarmPush2 threadId" + Thread.CurrentThread.ManagedThreadId);
-                //WriteLog("a-p2 loop start!");
-                //HistoryAlarmPush1();
-                //WriteLog("a-p2 loop done!");
-
-                Console.WriteLine("TaskHistoryAlarmPush2 threadId" + Thread.CurrentThread.ManagedThreadId);
-                Console.WriteLine("a-p2 loop start!");
-                HistoryAlarmPush();
-                Console.WriteLine("a-p2 loop done!");
-
-                Thread.Sleep(3 * 1000);
-            }
-        }
-        public static void HistoryAlarmPush2()
-        {
-            //WriteLog("HistoryAlarmPush2() " + Thread.CurrentThread.ManagedThreadId);
-
-            Console.WriteLine("HistoryAlarmPush2() " + Thread.CurrentThread.ManagedThreadId);
-            Thread.Sleep(2000);
-            return;
-        }
-
-        protected static string BasePath = AppDomain.CurrentDomain.BaseDirectory;
-
-        protected static void HistoryDataPush_Test()
-        {
-            try
-            {
-                throw new ArgumentNullException("in error");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("d-p HistoryDataPush() error:" + e.InnerException == null ? e.Message : e.InnerException.Message );
-                Console.WriteLine("d-p HistoryDataPush() error:" + (e.InnerException == null ? e.Message : e.InnerException.Message));
-            }
+            int x = 0;
+            return y => x += y;
         }
         #endregion
 
@@ -264,45 +129,19 @@ namespace ConsoleClientApp
 
         static async Task Main(string[] args)
         {
-            try
-            {
-                Console.WriteLine("fasfdas");
-                HistoryDataPush_Test();
+            Func<int,int> func = y => { int x = 0; return (x += y); };
+            System.Console.WriteLine("----------------------------");
+            System.Console.WriteLine(func(10));
+            System.Console.WriteLine(func(20));
+            System.Console.WriteLine(func(30));
+            System.Console.WriteLine("----------------------------");
 
-                Console.ReadLine();
-                return;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("d-p HistoryDataPush() error:" + (e.InnerException == null ? e.Message : e.InnerException.Message));
-            }
-    
-
-        //Task<string> task2 =  Task.Run(() =>
-        //{
-        //    Thread.Sleep(2000);//阻塞当前工作线程
-        //    //Task.Delay(3000);//耗时操作
-        //    Console.WriteLine("task2");
-        //    return "222";
-        //});
-        //string result = task2.Result;
-        //Task.WaitAll(task1, task2); //阻塞线程,等待task1,task2全部完成
-
-        //Console.WriteLine("end");
-        //Console.ReadKey();
-
-        //代码片段2
-        //Console.WriteLine("-------主线程启动-------");
-        //Task<int> task = GetStrLengthAsync();
-        //Console.WriteLine("主线程继续执行");
-        //Console.WriteLine("Task返回的值" + task.Result);
-        //Console.WriteLine("-------主线程结束-------");
-        //代码片段1
-        //Console.WriteLine("main ThreadId-1：" + Thread.CurrentThread.ManagedThreadId.ToString());
-        //int result = await Test();
-        //Console.WriteLine("console main");
-        //Console.WriteLine("main ThreadId-2：" + Thread.CurrentThread.ManagedThreadId.ToString());
-
+            //var func1 = Add();
+            //System.Console.WriteLine("----------------------------");
+            //System.Console.WriteLine(func1(10));
+            //System.Console.WriteLine(func1(20));
+            //System.Console.WriteLine(func1(30));
+            //System.Console.WriteLine("----------------------------");
 
         //1-new 方法的作用
         /*
