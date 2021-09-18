@@ -75,11 +75,10 @@
     <Compile Include="IndexorTest.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="reflecttest\Class1.cs" />
     <Compile Include="StaticTest.cs" />
     <Compile Include="StructClassTest.cs" />
-    <Compile Include="test\IdWorker.cs" />
-    <Compile Include="test\iot_history_alarm.cs" />
-    <Compile Include="test\iot_history_data.cs" />
+    <Compile Include="IdWorker.cs" />
     <Compile Include="weituoTest.cs" />
     <Compile Include="yibu.cs" />
     <Compile Include="zhiANDreferenceClass.cs" />
@@ -88,9 +87,7 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Log\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

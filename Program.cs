@@ -1,16 +1,5 @@
-﻿using Confluent.Kafka;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading;
+﻿using System;
 using System.Threading.Tasks;
-using System.Web;
-using static ConsoleClientApp.AbsInterface;
 using static ConsoleClientApp.duotai;
 
 /*
@@ -129,12 +118,20 @@ namespace ConsoleClientApp
 
         static async Task Main(string[] args)
         {
-            Func<int,int> func = y => { int x = 0; return (x += y); };
-            System.Console.WriteLine("----------------------------");
-            System.Console.WriteLine(func(10));
-            System.Console.WriteLine(func(20));
-            System.Console.WriteLine(func(30));
-            System.Console.WriteLine("----------------------------");
+            Type type = typeof(TestClass);
+            string name = type.Name;//获取当前成员的名称
+            string fullName = type.FullName;//获取类的全部名称不包括程序集
+            string nameSpace = type.Namespace;//获取该类的命名空间
+            var assembly = type.Assembly;//获取该类的程序集名
+            var module = type.Module;//获取该类型的模块名            
+            var memberInfos = type.GetMembers();//得到所有公共成员
+
+            //Func<int,int> func = y => { int x = 0; return (x += y); };
+            //System.Console.WriteLine("----------------------------");
+            //System.Console.WriteLine(func(10));
+            //System.Console.WriteLine(func(20));
+            //System.Console.WriteLine(func(30));
+            //System.Console.WriteLine("----------------------------");
 
             //var func1 = Add();
             //System.Console.WriteLine("----------------------------");
@@ -143,56 +140,56 @@ namespace ConsoleClientApp
             //System.Console.WriteLine(func1(30));
             //System.Console.WriteLine("----------------------------");
 
-        //1-new 方法的作用
-        /*
-         1- 调用构造方法 创建实例
-         2-在用作修饰符时，new 关键字可以显式隐藏从基类继承的成员。
-         3-用于在泛型声明中约束可能用作类型参数的参数的类型。
-         */
+            //1-new 方法的作用
+            /*
+             1- 调用构造方法 创建实例
+             2-在用作修饰符时，new 关键字可以显式隐藏从基类继承的成员。
+             3-用于在泛型声明中约束可能用作类型参数的参数的类型。
+             */
 
-        /*contact 为申明类  class1为实例类
-         当调用一个对象的函数时，系统会直接去检查这个对象申明定义的类，即申明类，看所调用的函数是否为虚函数；
-         如果不是虚函数，那么它就直接执行该函数。而如果有virtual关键字，也就是一个虚函数，那么这个时候它就不会立刻执行该函数了，
-         而是转去检查对象的实例类。
-         contact中print方法为虚方法，所以不会执行 而是去执行class1中的print方法
-         */
-        //contact ct1 = new class1();
-        //ct1.prinf();
-        //ct1.print1(); //但是contact 中的print1就没有定义为虚方法 所以就会直接调用 contact print1
-        //class2 cls2 = new class2();
-        //cls2.prinf();
+            /*contact 为申明类  class1为实例类
+             当调用一个对象的函数时，系统会直接去检查这个对象申明定义的类，即申明类，看所调用的函数是否为虚函数；
+             如果不是虚函数，那么它就直接执行该函数。而如果有virtual关键字，也就是一个虚函数，那么这个时候它就不会立刻执行该函数了，
+             而是转去检查对象的实例类。
+             contact中print方法为虚方法，所以不会执行 而是去执行class1中的print方法
+             */
+            //contact ct1 = new class1();
+            //ct1.prinf();
+            //ct1.print1(); //但是contact 中的print1就没有定义为虚方法 所以就会直接调用 contact print1
+            //class2 cls2 = new class2();
+            //cls2.prinf();
 
-        //虽然 contact中printf 为虚方法，按照上面的理解 按理是说执行class2 中的 print方法
-        //但是！！由于 class2中的printf 用new修饰了 所以等同于class2重新定义了一个printf方法 和父类的printf没有任何联系了
-        //(也就是我们说的隐藏了 父类的方法，准确来说 子类中用new 修饰和父类同名同签名的方法 会破坏多态性
-        //contact ct2 = cls2;    
-        //ct2.prinf();
-
-
-        //1-泛型T有new约束  class1虽然未定义无参构造函数，但是类默认都有无参构造方法(隐式构造函数)，
-        //如果显示把无参构造方法定义为private，则会报错
-        //泛型参数中的T 不能为抽象类,接口
-        //TestNew4<class1> tn4 = new TestNew4<class1>();
-        //2-无泛型约束 T泛型可以放抽象类和接口
-        //TestNew3<absAnimal> tn31 = new TestNew3<absAnimal>();
-        //TestNew3<IEat> tn32 = new TestNew3<IEat>();
+            //虽然 contact中printf 为虚方法，按照上面的理解 按理是说执行class2 中的 print方法
+            //但是！！由于 class2中的printf 用new修饰了 所以等同于class2重新定义了一个printf方法 和父类的printf没有任何联系了
+            //(也就是我们说的隐藏了 父类的方法，准确来说 子类中用new 修饰和父类同名同签名的方法 会破坏多态性
+            //contact ct2 = cls2;    
+            //ct2.prinf();
 
 
-        //string[] a = new string[4];
-        //List<string> a1 = a.ToList();
-        //List<string> a2 = a as List<string>; 无法进行拆箱装箱操作 
+            //1-泛型T有new约束  class1虽然未定义无参构造函数，但是类默认都有无参构造方法(隐式构造函数)，
+            //如果显示把无参构造方法定义为private，则会报错
+            //泛型参数中的T 不能为抽象类,接口
+            //TestNew4<class1> tn4 = new TestNew4<class1>();
+            //2-无泛型约束 T泛型可以放抽象类和接口
+            //TestNew3<absAnimal> tn31 = new TestNew3<absAnimal>();
+            //TestNew3<IEat> tn32 = new TestNew3<IEat>();
 
-        //2-多态：通过继承实现的不同对象调用相同的方法，表现出不同的行为，称之为多态。 virtual 和 Override
-        //testDuotai();
 
-        //List<int> list1 = new List<int>();
-        //list1.Add(1);
-        //list1.Add(2);
+            //string[] a = new string[4];
+            //List<string> a1 = a.ToList();
+            //List<string> a2 = a as List<string>; 无法进行拆箱装箱操作 
 
-        //foreach (var item in list1)
-        //{
-        //    Console.WriteLine(item);
-        //}
-    }
+            //2-多态：通过继承实现的不同对象调用相同的方法，表现出不同的行为，称之为多态。 virtual 和 Override
+            //testDuotai();
+
+            //List<int> list1 = new List<int>();
+            //list1.Add(1);
+            //list1.Add(2);
+
+            //foreach (var item in list1)
+            //{
+            //    Console.WriteLine(item);
+            //}
+        }
     }
 }
